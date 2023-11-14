@@ -6,11 +6,7 @@ const screens = prompt("Какие типы экранов нужно разра
 // Стоимость верстки экраноk
 const screenPrice = +prompt("Сколько будет стоить данная работа?");
 const rollback = 64;
-// Стоимость разработки сайта
-let fullPrice = 12000;
 const adaptive = confirm("Нужен ли адаптив на сайте?");
-// итоговая стоимость за вычетом отката посреднику
-const servicePercentPrice = 0;
 
 //переменные lesson03
 const service1 = prompt("Какой дополнительный тип услуги нужен ?");
@@ -25,14 +21,13 @@ const strScreens = screens.toLowerCase();
 // Регулярное выражение
 const _regExp = /\s*(?:;|$)\s*/;
 
+const fullPrice = screenPrice + servicePrice1 + servicePrice2;
+
 // Процент отката посреднику за работу
 const rollPec = fullPrice * (rollback / 100);
 
-// итоговая стоимость работы
-fullPrice = screenPrice + servicePrice1 + servicePrice2;
-
 // тоговую стоимость за вычетом отката посреднику
-servicePercentPrice = Math.ceil(fullPrice - rollPec);
+const servicePercentPrice = Math.ceil(fullPrice - rollPec);
 
 // 10) Написать конструкцию условий (расчеты приведены в рублях) (вывести в консоль)
 if (fullPrice > 30000) {
