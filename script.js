@@ -12,11 +12,13 @@ const service2 = prompt("Какой дополнительный тип услу
 const servicePrice2 = +prompt("Сколько это будет стоить ?");
 const rollback = 64;
 // Стоимось верстки + доп.услуг
-const fullPrice = getFullPrice(screenPrice);
+let fullPrice = 0;
 // Процент отката посреднику за работу
-const rollPec = fullPrice * (rollback / 100);
+let rollPec = 0;
 // тоговую стоимость за вычетом отката посреднику
-const servicePercentPrice = getServicePercentPrices(fullPrice, rollPec);
+let servicePercentPrice = 0;
+// Стоимось всех доп.услуг
+let allServicePrices = 0;
 // Перевод строки к нижнему регистру
 const strScreens = screens.toLowerCase();
 // Регулярное выражение
@@ -24,35 +26,35 @@ const _regExp = /\s*(?:;|$)\s*/;
 
 // --Блок описания функций--
 //  Функция возвращает сумму всех дополнительных услуг.
-const allServicePrices = function getAllServicePrices(servicePrice1, servicePrice2) {
+const getAllServicePrices = function (servicePrice1, servicePrice2) {
   return servicePrice1 + servicePrice2;
 };
 
 // Функция возвращает сумму стоимости верстки и стоимости дополнительных услуг(screenPrice + allServicePrices).
-function getFullPrice(screenPrice) {
-  return screenPrice + allServicePrices(servicePrice1, servicePrice2);
-}
+const getFullPrice = function (screenPrice) {
+  return screenPrice + getAllServicePrices(servicePrice1, servicePrice2);
+};
 
 // Функция возвращает title меняя его таким образом: первый символ с большой буквы, остальные с маленькой".
 // Учесть вариант что строка может начинаться с пустых символов. " КаЛьКулятор Верстки"
-function getTitle(title) {
+const getTitle = function (title) {
   let _str = title.trim().toLocaleLowerCase();
   return (title = _str.charAt(0).toUpperCase() + _str.slice(1));
-}
+};
 
 // 4) Объявить функцию getServicePercentPrices.
 // Функция возвращает итоговую стоимость за вычетом процента отката.
 // Результат сохраняем в переменную servicePercentPrice(итоговая стоимость минус сумма отката)
-function getServicePercentPrices(fullPrice, rollPec) {
+const getServicePercentPrices = function (fullPrice, rollPec) {
   return Math.ceil(fullPrice - rollPec);
-}
+};
 
 const showTypeOf = function (variable) {
   console.log(`${variable}:`, typeof variable);
 };
 
 // Функция возвращает скидку.
-function getRollbackMessage(price) {
+const getRollbackMessage = function (price) {
   if (price > 30000) {
     return "Даем скидку в 10%";
   } else if (price > 15000 && price <= 30000) {
@@ -62,7 +64,13 @@ function getRollbackMessage(price) {
   } else {
     return "Что то пошло не так";
   }
-}
+};
+
+// --Блок функционала--
+fullPrice = getFullPrice(screenPrice);
+rollPec = fullPrice * (rollback / 100);
+servicePercentPrice = getServicePercentPrices(fullPrice, rollPec);
+allServicePrices = getAllServicePrices(servicePrice1, servicePrice2);
 
 // --Блок вывода в консоль--
 // - вызовы функции showTypeOf
