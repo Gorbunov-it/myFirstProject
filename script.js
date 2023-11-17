@@ -20,7 +20,7 @@ let servicePercentPrice = 0;
 // Стоимось всех доп.услуг
 let allServicePrices = 0;
 // Перевод строки к нижнему регистру
-const strScreens = screens.toLowerCase();
+let strScreens = screens.toLowerCase();
 // Регулярное выражение
 const _regExp = /\s*(?:;|$)\s*/;
 
