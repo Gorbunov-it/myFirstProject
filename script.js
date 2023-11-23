@@ -1,184 +1,167 @@
 "use strict";
 
-// --Блок объявления переменных--
-let title;
-let screens;
-let screenPrice;
-let adaptive;
-let service1;
-let servicePrice1;
-let service2;
-let servicePrice2;
-let fullPrice = 0;
-let rollPec = 0;
-let servicePercentPrice = 0;
-let allServicePrices = 0;
-let strScreens;
-const rollback = 64;
-const _regExp = /\s*(?:;|$)\s*/;
+let appData = {
+  // --Блок объявления переменных--
+  title: "",
+  screens: "",
+  screenPrice: 0,
+  adaptive: true,
+  service1: "",
+  servicePrice1: 0,
+  service2: "",
+  servicePrice2: 0,
+  fullPrice: 0,
+  rollPec: 0,
+  servicePercentPrice: 0,
+  allServicePrices: 0,
+  rollback: 64,
+  _regExp: /\s*(?:;|$)\s*/,
 
-// --Блок описания функций--
-// Функция проверки строки
-const stringOrNumber = function (str) {
-  if (isNaN(str)) {
-    return true;
-  } else {
-    return false;
-  }
-};
+  // --Блок описания функций--
 
-// Функция проверки числа
-const isFiniteOrNull = function (num) {
-  if (num !== null && num !== "") {
-    if (num.trim() !== "") {
-      let _num = num.trim();
-      if (isFinite(_num.replace(",", ".").trim())) {
-        return true;
-      } else {
-        return false;
-      }
+  // Функция проверки строки
+  stringOrNumber: function (str) {
+    if (isNaN(str)) {
+      return true;
     } else {
       return false;
     }
-  } else {
-    return false;
-  }
-};
+  },
 
-// Функция возвращает title меняя его таким образом: первый символ с большой буквы, остальные с маленькой".
-// Пример: " КаЛьКулятор Верстки" - > "Калькулятор верстки"
-const changeTitle = function (str) {
-  let _str = str.trim().toLocaleLowerCase();
-  return (str = _str.charAt(0).toUpperCase() + _str.slice(1));
-};
+  // Функция изменяет и возвращает title
+  // Пример: " КаЛьКулятор Верстки" - > "Калькулятор верстки"
+  changeTitle: function (value) {
+    value = value.trim().toLocaleLowerCase();
+    this.title = value.charAt(0).toUpperCase() + value.slice(1);
+  },
 
-const changeScreens = function (screens) {
-  strScreens = screens.trim().toLowerCase();
-};
+  // Функция получения заголовка
+  getTitle: function () {
+    do {
+      this.title = prompt("Как называется ваш проект?");
+    } while (!this.stringOrNumber(this.title));
+    this.changeTitle(this.title);
+  },
 
-// Функция получения заголовка
-const getTitle = function () {
-  do {
-    title = prompt("Как называется ваш проект?");
-  } while (!stringOrNumber(title));
-  title = changeTitle(title);
-};
+  changeScreens: function (screens) {
+    this.screens = screens.trim().toLowerCase();
+  },
 
-// Функция получения Тип экранов
-const getScreens = function () {
-  do {
-    screens = prompt("Какие типы экранов нужно разработать?");
-  } while (!stringOrNumber(screens));
-  screens = changeScreens(screens);
-};
+  // Функция получения Тип экранов
+  getScreens: function () {
+    do {
+      this.screens = prompt("Какие типы экранов нужно разработать?");
+    } while (!this.stringOrNumber(this.screens));
+    this.changeScreens(this.screens);
+  },
 
-// Функция получения стоимости
-const getScreenPrice = function () {
-  do {
-    screenPrice = prompt("Сколько будет стоить данная работа?");
-  } while (!isFiniteOrNull(screenPrice));
-  screenPrice = convertStrInNumber(screenPrice);
-};
-
-// Функция получения тип адаптива
-const getAdaptive = function () {
-  adaptive = confirm("Нужен ли адаптив на сайте?");
-};
-
-const getService = function () {
-  let service = "";
-  do {
-    service = prompt("Какой дополнительный тип услуги нужен ?");
-  } while (!stringOrNumber(service));
-  return service;
-};
-
-const convertStrInNumber = function (variable) {
-  return parseFloat(variable.replace(",", ".").trim());
-};
-
-const getServicePrice = function () {
-  let servicePrice = 0;
-  do {
-    servicePrice = prompt("Сколько это будет стоить ?");
-  } while (!isFiniteOrNull(servicePrice));
-  return (servicePrice = convertStrInNumber(servicePrice));
-};
-
-//  Функция возвращает сумму всех дополнительных услуг.
-const getAllServicePrices = function () {
-  for (let i = 0; i < 2; i++) {
-    if (i == 0) {
-      service1 = getService();
-      servicePrice1 = getServicePrice();
+  // Функция проверки числа
+  isFiniteOrNull: function (num) {
+    if (num !== null && num.trim() !== "") {
+      return isFinite(num.trim().replace(",", ".").trim());
+    } else {
+      return false;
     }
-    if (i == 1) {
-      service2 = getService();
-      servicePrice2 = getServicePrice();
+  },
+
+  convertStrInNumber: function (variable) {
+    return parseFloat(variable.replace(",", ".").trim());
+  },
+
+  // Функция получения стоимости
+  getScreenPrice: function () {
+    do {
+      this.screenPrice = prompt("Сколько будет стоить данная работа?");
+    } while (!this.isFiniteOrNull(this.screenPrice));
+    this.screenPrice = this.convertStrInNumber(this.screenPrice);
+  },
+
+  // Функция получения тип адаптива
+  getAdaptive: function () {
+    this.adaptive = confirm("Нужен ли адаптив на сайте?");
+  },
+
+  getService: function () {
+    let service = "";
+    do {
+      service = prompt("Какой дополнительный тип услуги нужен ?");
+    } while (!this.stringOrNumber(service));
+    return service;
+  },
+
+  getServicePrice: function () {
+    let servicePrice = 0;
+    do {
+      servicePrice = prompt("Сколько это будет стоить ?");
+    } while (!this.isFiniteOrNull(servicePrice));
+    return this.convertStrInNumber(servicePrice);
+  },
+
+  //  Функция возвращает сумму всех дополнительных услуг.
+  getAllServicePrices: function () {
+    for (let i = 0; i < 2; i++) {
+      if (i == 0) {
+        this.service1 = this.getService();
+        this.servicePrice1 = this.getServicePrice();
+      }
+      if (i == 1) {
+        this.service2 = this.getService();
+        this.servicePrice2 = this.getServicePrice();
+      }
     }
-  }
-  allServicePrices = servicePrice1 + servicePrice2;
+    this.allServicePrices = this.servicePrice1 + this.servicePrice2;
+  },
+
+  // Функция возвращает сумму стоимости верстки и стоимости дополнительных услуг
+  getFullPrice: function () {
+    return this.screenPrice + this.allServicePrices;
+  },
+
+  getRollPec: function () {
+    return this.fullPrice * (this.rollback / 100);
+  },
+
+  // Функция возвращает итоговую стоимость за вычетом процента отката.
+  getServicePercentPrices: function () {
+    return Math.ceil(this.fullPrice - this.rollPec);
+  },
+
+  // Функция возвращает скидку.
+  getRollbackMessage: function (price) {
+    if (price > 30000) {
+      return "Даем скидку в 10%";
+    } else if (price > 15000 && price <= 30000) {
+      return "Даем скидку в 5%";
+    } else if (price > 0 && price <= 15000) {
+      return "Скидка не предусмотрена";
+    } else {
+      return "Что то пошло не так";
+    }
+  },
+
+  // Функция проверки типа переменных
+  showTypeOf: function (variable) {
+    console.log(`${variable}:`, typeof variable);
+  },
+
+  // --Блок вывода в консоль--
+  logger: function () {
+    for (const key in appData) {
+      console.log("Ключ: " + key + " значение: " + appData[key]);
+    }
+  },
+
+  // --Блок функционала--
+  start: function () {
+    this.getTitle();
+    this.getScreens();
+    this.getScreenPrice();
+    this.getAdaptive;
+    this.getAllServicePrices();
+    this.fullPrice = this.getFullPrice();
+    this.rollPec = this.getRollPec();
+    this.servicePercentPrice = this.getServicePercentPrices();
+    this.logger();
+  },
 };
-
-// Функция возвращает сумму стоимости верстки и стоимости дополнительных услуг
-const getFullPrice = function () {
-  return screenPrice + allServicePrices;
-};
-
-const getRollPec = function () {
-  return fullPrice * (rollback / 100);
-};
-
-// Функция возвращает итоговую стоимость за вычетом процента отката.
-const getServicePercentPrices = function () {
-  return Math.ceil(fullPrice - rollPec);
-};
-
-// Функция возвращает скидку.
-const getRollbackMessage = function (price) {
-  if (price > 30000) {
-    return "Даем скидку в 10%";
-  } else if (price > 15000 && price <= 30000) {
-    return "Даем скидку в 5%";
-  } else if (price > 0 && price <= 15000) {
-    return "Скидка не предусмотрена";
-  } else {
-    return "Что то пошло не так";
-  }
-};
-
-// Функция проверки типа переменных
-const showTypeOf = function (variable) {
-  console.log(`${variable}:`, typeof variable);
-};
-
-const actionResual = function (variable) {
-  console.log(variable);
-};
-
-// Функция запроса вопросов
-const askQuestions = function () {
-  getTitle();
-  getScreens();
-  getScreenPrice();
-  getAdaptive();
-  getAllServicePrices();
-};
-
-// --Блок функционала--
-askQuestions();
-fullPrice = getFullPrice();
-rollPec = getRollPec();
-servicePercentPrice = getServicePercentPrices();
-// - вызовы функции showTypeOf
-showTypeOf(title);
-showTypeOf(fullPrice);
-showTypeOf(adaptive);
-
-// --Блок вывода в консоль--
-// - вывод строки с типами экранов для разработки screens
-console.log(strScreens.split(_regExp));
-// - сообщение о скидке пользователю (вызовы функции getRollbackMessage)
-console.log(getRollbackMessage(fullPrice));
-// - стоимость за вычетом процента отката посреднику (вызовы функции getServicePercentPrices)
-console.log(servicePercentPrice);
+appData.start();
