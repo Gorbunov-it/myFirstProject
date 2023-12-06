@@ -1,226 +1,199 @@
 "use strict";
-const header = document.getElementsByTagName("header");
-const title = header[0].getElementsByTagName("h1")[0];
-const handler_btn = document.getElementsByClassName("handler_btn");
-const screen_btn = document.querySelector(".screen-btn");
+
+const title = document.getElementById("title");
+const startButton = document.getElementById("start");
+let screenBlock = document.querySelector(".screen");
 const other_tems_percent = document.querySelectorAll(".other-items.percent");
 const other_tems_number = document.querySelectorAll(".other-items.number");
-const input_range = document.querySelector(".rollback [type='range']");
-const span_range_value = document.querySelector(".rollback .range-value");
-const total_input = document.getElementsByClassName("main-total__items")[0].querySelectorAll("input");
-let screen = document.querySelectorAll(".screen");
+const screenButton = document.querySelector(".screen-btn");
+const range = document.querySelector("input[type='range']");
+const rangeValue = document.querySelector("span[class='range-value']");
 
-// console.log(title);
-// console.log(handler_btn);
-// console.log(screen_btn);
-// console.log(other_tems_percent);
-// console.log(other_tems_number);
-// console.log(input_range);
-// console.log(span_range_value);
-// console.log(total_input);
-// console.log(screen);
+const total = document.getElementById("total");
+const totalCount = document.getElementById("total-count");
+const totalCountOther = document.getElementById("total-count-other");
+const totalFullCount = document.getElementById("total-full-count");
+const totalCountRollback = document.getElementById("total-count-rollback");
 
 let appData = {
   //--Блок описание свойств--
   title: "",
   screens: [],
+  servicesPercent: {},
+  servicesNumber: {},
   screenPrice: 0,
-  adaptive: true,
-  services: {},
-  allServicePrices: 0,
+  servicePricesNumber: 0,
+  servicePricesPercent: 0,
   servicePercentPrice: 0,
   fullPrice: 0,
-  rollPec: 0,
-  rollback: 10,
-  _regExp: /\s*(?:;|$)\s*/,
+  totalCount: 0,
+  rollback: 0,
 
   //--Блок описание методов--
 
-  // Метод проверки строки
-  stringOrNumber: function (str) {
-    if (isNaN(str)) {
+  getTitle: function () {
+    document.title = title.innerText;
+  },
+
+  getScreenBlock: () => {
+    return document.querySelectorAll(".screen");
+  },
+
+  resetSceebBlock: (block) => {
+    const select = block.querySelector("select");
+    const input = block.querySelector("input");
+    select.options[0];
+    input.value = "";
+  },
+
+  isFiniteOrNull: (num) => {
+    if (isNaN(num)) {
       return true;
     } else {
       return false;
     }
   },
 
-  // Метод проверки числа
-  isFiniteOrNull: function (num) {
-    if (num !== null && num.trim() !== "") {
-      return isFinite(num.trim().replace(",", ".").trim());
-    } else {
-      return false;
+  valid: () => {
+    screenBlock = appData.getScreenBlock();
+    screenBlock.forEach((screen) => {
+      const select = screen.querySelector("select");
+      const input = screen.querySelector("input");
+      if (+select.value === 0 || +input.value === 0 || select.value === "") {
+        startButton.style.disabled = "true";
+        startButton.style.backgroundColor = "#f0f0f0";
+      } else {
+        startButton.style.disabled = "false";
+        startButton.style.backgroundColor = "#A52A2A";
+      }
+      select.addEventListener("change", appData.valid);
+      input.addEventListener("input", appData.inputChange);
+    });
+  },
+
+  addSceebBlock: () => {
+    screenBlock = appData.getScreenBlock();
+    const cloneBlock = screenBlock[screenBlock.length - 1].cloneNode(true);
+    appData.resetSceebBlock(cloneBlock);
+    screenBlock[screenBlock.length - 1].after(cloneBlock);
+    appData.valid();
+  },
+
+  addScreens: () => {
+    appData.screens = [];
+    screenBlock = appData.getScreenBlock();
+    screenBlock.forEach((screen, index) => {
+      const select = screen.querySelector("select");
+      const selectName = select.options[select.selectedIndex].innerText;
+      const input = screen.querySelector("input");
+      appData.screens.push({
+        id: index,
+        screen: selectName,
+        price: +select.value * +input.value,
+        count: +input.value,
+      });
+    });
+  },
+
+  addServicePercent: () => {
+    appData.servicesPercent = {};
+    other_tems_percent.forEach((item) => {
+      const check = item.querySelector("input[type='checkbox']");
+      const label = item.querySelector("label");
+      const inputText = item.querySelector("input[type='text']");
+      if (check.checked) {
+        appData.servicesPercent[label.innerText] = +inputText.value;
+      }
+    });
+  },
+
+  addServiceNumber: () => {
+    appData.servicesNumber = {};
+    other_tems_number.forEach((item) => {
+      const check = item.querySelector("input[type='checkbox']");
+      const label = item.querySelector("label");
+      const inputText = item.querySelector("input[type='text']");
+      if (check.checked) {
+        appData.servicesNumber[label.innerText] = +inputText.value;
+      }
+    });
+  },
+
+  addService: () => {
+    appData.addServicePercent();
+    appData.addServiceNumber();
+  },
+
+  addPrices: () => {
+    for (const screen of appData.screens) {
+      appData.screenPrice += screen.price;
     }
-  },
 
-  // Метод изменяет и возвращает title
-  // Пример: " КаЛьКулятор Верстки" - > "Калькулятор верстки"
-  changeTitle: function (value) {
-    value = value.trim().toLocaleLowerCase();
-    this.title = value.charAt(0).toUpperCase() + value.slice(1);
-  },
-
-  //Метод получения название проекта
-  getTitle: function () {
-    do {
-      this.title = prompt("Как называется ваш проект?");
-    } while (!this.stringOrNumber(this.title));
-    this.changeTitle(this.title);
-  },
-
-  //Метод изменение Типа экрана
-  changeScreens: function (screens) {
-    return screens.trim().toLowerCase();
-  },
-
-  // Метод получения Типа экрана
-  getScreen: function () {
-    let screens = "";
-    do {
-      screens = prompt("Какие типы экранов нужно разработать?");
-    } while (!this.stringOrNumber(screens));
-    return this.changeScreens(screens);
-  },
-
-  //Метод преобразования числа с плавующей запятой в точку
-  convertStrInNumber: function (variable) {
-    return parseFloat(variable.replace(",", ".").trim());
-  },
-
-  // Метод получения стоимости
-  getScreenPrice: function () {
-    let screenPrice = 0;
-    do {
-      screenPrice = prompt("Сколько будет стоить данная работа?");
-    } while (!this.isFiniteOrNull(screenPrice));
-    return this.convertStrInNumber(screenPrice);
-  },
-
-  // Метод сохранения всех типов Экранов и суммы
-  getAllScreensPrices: function () {
-    for (let i = 0; i < 2; i++) {
-      let screen = this.getScreen();
-      let price = this.getScreenPrice();
-      appData.screens.push({ id: i, screen: screen, price: price });
+    for (const screen of appData.screens) {
+      appData.totalCount += screen.count;
     }
-  },
 
-  // Метод суммирования всех сумм за титы экранов
-  summAllScreenPrices: function (summ, item) {
-    let result = summ + item.price;
-    return result;
-  },
-
-  // Метод получения всех сумм за титы экранов
-  getSummAllScreenPrices: function () {
-    this.screenPrice = appData.screens.reduce(this.summAllScreenPrices, 0);
-  },
-
-  //ТЕСТИРОВАНИЕ
-  // getSummAllScreenPrices: function () {
-  //   for (const key in appData.screens) {
-  //     if (Object.hasOwnProperty.call(appData.screens, key)) {
-  //       appData.screenPrice += appData.screens[key].price;
-  //     }
-  //   }
-  // },
-
-  //  Метод получения услуги
-  getService: function () {
-    let service = "";
-    do {
-      service = prompt("Какой дополнительный тип услуги нужен ?");
-    } while (!this.stringOrNumber(service));
-    return service;
-  },
-
-  //  Метод получения стоимости за услугу
-  getServicePrice: function () {
-    let servicePrice = 0;
-    do {
-      servicePrice = prompt("Сколько это будет стоить ?");
-    } while (!this.isFiniteOrNull(servicePrice));
-    return this.convertStrInNumber(servicePrice);
-  },
-
-  //  Метод получения всех дополнительных услуг и их цен.
-  getAllServiceAndPrices: function () {
-    debugger;
-    for (let i = 0; i < 2; i++) {
-      let service = this.getService();
-      let servicePrice = this.getServicePrice();
-      appData.services[`${service}${i}`] = servicePrice;
+    for (const key in appData.servicesNumber) {
+      appData.servicePricesNumber += appData.servicesNumber[key];
     }
-  },
 
-  // Метод получения тип адаптива
-  getAdaptive: function () {
-    this.adaptive = confirm("Нужен ли адаптив на сайте?");
-  },
-
-  // Метод возвращает сумму всех дополнительных услуг.
-  getSummServicePrice: function () {
-    for (const key in appData.services) {
-      appData.allServicePrices += appData.services;
+    for (const key in appData.servicesPercent) {
+      appData.servicePricesPercent += appData.screenPrice * (appData.servicesPercent[key] / 100);
     }
+    appData.fullPrice = appData.screenPrice + appData.servicePricesNumber + appData.servicePricesPercent;
+    appData.servicePercentPrice = Math.ceil(appData.fullPrice - appData.fullPrice * (appData.rollback / 100));
   },
 
-  // Метод возвращает сумму стоимости верстки и стоимости дополнительных услуг
-  getFullPrice: function () {
-    this.fullPrice = this.screenPrice + this.allServicePrices;
+  resetResult: () => {
+    appData.screenPrice = 0;
+    appData.totalCount = 0;
+    appData.servicePricesNumber = 0;
+    appData.servicePricesPercent = 0;
+    appData.fullPrice = 0;
+    appData.servicePercentPrice = 0;
+    total.value = "";
+    totalCount.value = "";
+    totalFullCount.value = "";
+    totalCountOther.value = "";
+    totalCountRollback.value = "";
   },
 
-  getRollPec: function () {
-    this.rollPec = this.fullPrice * (this.rollback / 100);
+  showResult: () => {
+    total.value = appData.screenPrice;
+    totalCountOther.value = appData.servicePricesNumber + appData.servicePricesPercent;
+    totalFullCount.value = appData.fullPrice;
+    totalCount.value = appData.totalCount;
+    totalCountRollback.value = appData.servicePercentPrice;
   },
 
-  // Метод возвращает итоговую стоимость за вычетом процента отката.
-  getServicePercentPrices: function () {
-    this.servicePercentPrice = Math.ceil(this.fullPrice - this.rollPec);
+  inputRangeValue: (e) => {
+    rangeValue.innerText = e.target.value + "%";
+    appData.rollback = +e.target.value;
   },
 
-  // Метод возвращает скидку.
-  getRollbackMessage: function (price) {
-    if (price > 30000) {
-      console.log("Даем скидку в 10%");
-    } else if (price > 15000 && price <= 30000) {
-      console.log("Даем скидку в 5%");
-    } else if (price > 0 && price <= 15000) {
-      console.log("Скидка не предусмотрена");
-    } else {
-      console.log("Что то пошло не так");
+  inputChange: (e) => {
+    let number = e.target.value;
+    if (!!appData.isFiniteOrNull(number)) {
+      e.target.value = "";
     }
+    appData.valid();
   },
 
-  // Метод проверки типа переменных
-  showTypeOf: function (variable) {
-    console.log(typeof variable, `${variable}:`);
+  start: () => {
+    appData.addScreens();
+    appData.addService();
+    appData.resetResult();
+    appData.addPrices();
+    appData.showResult();
   },
 
-  // --Блок вывода в консоль--
-  logger: function () {
-    for (const key in appData) {
-      console.log("Ключ: " + key + " значение: " + appData[key]);
-    }
-  },
-
-  //Метод запуска проекта
-  start: function () {
-    this.getTitle();
-    this.getAllScreensPrices();
-    this.getSummAllScreenPrices();
-    this.getAllServiceAndPrices();
-    this.getSummServicePrice();
-    this.getFullPrice();
-    this.getRollPec();
-    this.getServicePercentPrices();
-    this.getRollbackMessage(this.fullPrice);
-    this.showTypeOf(this.title);
-    this.showTypeOf(this.fullPrice);
-    this.showTypeOf(this.adaptive);
-    this.logger();
+  init: () => {
+    appData.getTitle();
+    appData.valid();
+    startButton.addEventListener("click", appData.start);
+    screenButton.addEventListener("click", appData.addSceebBlock);
+    range.addEventListener("input", appData.inputRangeValue);
   },
 };
 
-// appData.start();
+appData.init();
