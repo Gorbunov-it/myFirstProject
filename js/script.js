@@ -141,7 +141,11 @@ let appData = {
       appData.servicePricesPercent += appData.screenPrice * (appData.servicesPercent[key] / 100);
     }
     appData.fullPrice = appData.screenPrice + appData.servicePricesNumber + appData.servicePricesPercent;
+  },
+
+  getServicePercentPrice: () => {
     appData.servicePercentPrice = Math.ceil(appData.fullPrice - appData.fullPrice * (appData.rollback / 100));
+    totalCountRollback.value = appData.servicePercentPrice;
   },
 
   resetResult: () => {
@@ -169,6 +173,7 @@ let appData = {
   inputRangeValue: (e) => {
     rangeValue.innerText = e.target.value + "%";
     appData.rollback = +e.target.value;
+    appData.getServicePercentPrice();
   },
 
   inputChange: (e) => {
@@ -185,6 +190,7 @@ let appData = {
     appData.resetResult();
     appData.addPrices();
     appData.showResult();
+    appData.getServicePercentPrice();
   },
 
   init: () => {
