@@ -353,9 +353,11 @@ let appData = {
       input.addEventListener("input", this.inputChange);
       if (+select.value === 0 || +input.value === 0 || select.value === "") {
         appData.creatStyleButton(startButton, true, "#f0f0f0");
+        appData.creatStyleButton(screenButton, true, "#f0f0f0");
         break;
       } else {
         appData.creatStyleButton(startButton, false, "#A52A2A");
+        appData.creatStyleButton(screenButton, false, "#A52A2A");
       }
     }
   },
